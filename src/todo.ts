@@ -18,6 +18,7 @@ const completedCount = document.getElementById('completedCount')!;
 
 let tasks: Task[] = JSON.parse(localStorage.getItem('tasks') || '[]');
 let currentView: 'all' | 'pending' | 'completed' = 'all';
+let editingTaskId: string | null = null;
 
 function saveTasks() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -31,6 +32,25 @@ function renderTasks() {
     filtered = tasks.filter(t => !t.completed);
   } else if (currentView === 'completed') {
     filtered = tasks.filter(t => t.completed);
+  }
+
+  if (filtered.length === 0) {
+    const emptyMsg = document.createElement('li');
+
+    let message = "No tasks added.";
+    if (currentView === 'pending') {
+      message = "No pending tasks.";
+    } else if (currentView === 'completed') {
+      message = "No completed tasks.";
+    }
+
+    emptyMsg.textContent = message;
+    emptyMsg.style.textAlign = "center";
+    emptyMsg.style.color = "#888";
+    emptyMsg.style.fontStyle = "italic";
+    tasksUl.appendChild(emptyMsg);
+    updateCounts();
+    return;
   }
 
   filtered.forEach(task => {
@@ -52,11 +72,10 @@ function renderTasks() {
     const text = document.createElement('div');
     text.innerHTML = `<strong>${task.title}</strong><br><span class="task-due">${task.dueDate || ''}</span>`;
     if (task.completed) {
-    text.classList.add("completed-task");
+      text.classList.add("completed-task");
     } else {
-    text.classList.remove("completed-task");
+      text.classList.remove("completed-task");
     }
-
 
     left.appendChild(checkbox);
     left.appendChild(text);
@@ -65,11 +84,12 @@ function renderTasks() {
     actions.className = 'task-actions';
 
     const editBtn = document.createElement('button');
-    editBtn.textContent = '✎';
+    editBtn.textContent = '✏️';
     editBtn.onclick = () => {
       taskTitleInput.value = task.title;
       dueDateInput.value = task.dueDate || '';
-      deleteTask(task.id);
+      editingTaskId = task.id;
+      addTaskBtn.textContent = "Update Task";
     };
 
     const deleteBtn = document.createElement('button');
@@ -106,23 +126,41 @@ addTaskBtn.addEventListener('click', () => {
   const dueDate = dueDateInput.value;
 
   if (!title || !dueDate) {
-  alert("Please enter both task title and due date.");
-  return;
-}
+    alert("Please enter both task title and due date.");
+    return;
+  }
 
-  const newTask: Task = {
-    id: crypto.randomUUID(),
-    title,
-    dueDate: dueDateInput.value,
-    completed: false,
-  };
+  if (editingTaskId) {
+    const taskToEdit = tasks.find(t => t.id === editingTaskId);
+    if (taskToEdit) {
+      taskToEdit.title = title;
+      taskToEdit.dueDate = dueDate;
+      alert("Task updated successfully!");
+    }
+    editingTaskId = null;
+    addTaskBtn.textContent = "+ Add Task";
+  } else {
+    const newTask: Task = {
+      id: crypto.randomUUID(),
+      title,
+      dueDate,
+      completed: false,
+    };
+    tasks.push(newTask);
+  }
 
-  tasks.push(newTask);
   saveTasks();
   renderTasks();
   taskTitleInput.value = '';
   dueDateInput.value = '';
 });
+
+// Prevent past dates
+function setMinDate() {
+  const today = new Date().toISOString().split("T")[0];
+  dueDateInput.setAttribute("min", today);
+}
+setMinDate();
 
 allBtn.onclick = () => {
   currentView = 'all';

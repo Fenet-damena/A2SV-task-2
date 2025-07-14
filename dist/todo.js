@@ -11,6 +11,7 @@ const pendingCount = document.getElementById('pendingCount');
 const completedCount = document.getElementById('completedCount');
 let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
 let currentView = 'all';
+let editingTaskId = null;
 function saveTasks() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
@@ -22,6 +23,23 @@ function renderTasks() {
     }
     else if (currentView === 'completed') {
         filtered = tasks.filter(t => t.completed);
+    }
+    if (filtered.length === 0) {
+        const emptyMsg = document.createElement('li');
+        let message = "No tasks added.";
+        if (currentView === 'pending') {
+            message = "No pending tasks.";
+        }
+        else if (currentView === 'completed') {
+            message = "No completed tasks.";
+        }
+        emptyMsg.textContent = message;
+        emptyMsg.style.textAlign = "center";
+        emptyMsg.style.color = "#888";
+        emptyMsg.style.fontStyle = "italic";
+        tasksUl.appendChild(emptyMsg);
+        updateCounts();
+        return;
     }
     filtered.forEach(task => {
         const li = document.createElement('li');
@@ -53,7 +71,8 @@ function renderTasks() {
         editBtn.onclick = () => {
             taskTitleInput.value = task.title;
             dueDateInput.value = task.dueDate || '';
-            deleteTask(task.id);
+            editingTaskId = task.id;
+            addTaskBtn.textContent = "Update Task";
         };
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = '🗑️';
@@ -85,18 +104,35 @@ addTaskBtn.addEventListener('click', () => {
         alert("Please enter both task title and due date.");
         return;
     }
-    const newTask = {
-        id: crypto.randomUUID(),
-        title,
-        dueDate: dueDateInput.value,
-        completed: false,
-    };
-    tasks.push(newTask);
+    if (editingTaskId) {
+        const taskToEdit = tasks.find(t => t.id === editingTaskId);
+        if (taskToEdit) {
+            taskToEdit.title = title;
+            taskToEdit.dueDate = dueDate;
+            alert("Task updated successfully!");
+        }
+        editingTaskId = null;
+        addTaskBtn.textContent = "+ Add Task";
+    }
+    else {
+        const newTask = {
+            id: crypto.randomUUID(),
+            title,
+            dueDate,
+            completed: false,
+        };
+        tasks.push(newTask);
+    }
     saveTasks();
     renderTasks();
     taskTitleInput.value = '';
     dueDateInput.value = '';
 });
+function setMinDate() {
+    const today = new Date().toISOString().split("T")[0];
+    dueDateInput.setAttribute("min", today);
+}
+setMinDate();
 allBtn.onclick = () => {
     currentView = 'all';
     setActiveTab(allBtn);
