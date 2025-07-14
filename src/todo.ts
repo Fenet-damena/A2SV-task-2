@@ -51,6 +51,12 @@ function renderTasks() {
 
     const text = document.createElement('div');
     text.innerHTML = `<strong>${task.title}</strong><br><span class="task-due">${task.dueDate || ''}</span>`;
+    if (task.completed) {
+    text.classList.add("completed-task");
+    } else {
+    text.classList.remove("completed-task");
+    }
+
 
     left.appendChild(checkbox);
     left.appendChild(text);
@@ -97,7 +103,12 @@ function deleteTask(id: string) {
 
 addTaskBtn.addEventListener('click', () => {
   const title = taskTitleInput.value.trim();
-  if (!title) return;
+  const dueDate = dueDateInput.value;
+
+  if (!title || !dueDate) {
+  alert("Please enter both task title and due date.");
+  return;
+}
 
   const newTask: Task = {
     id: crypto.randomUUID(),

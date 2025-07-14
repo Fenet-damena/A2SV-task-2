@@ -38,6 +38,12 @@ function renderTasks() {
         };
         const text = document.createElement('div');
         text.innerHTML = `<strong>${task.title}</strong><br><span class="task-due">${task.dueDate || ''}</span>`;
+        if (task.completed) {
+            text.classList.add("completed-task");
+        }
+        else {
+            text.classList.remove("completed-task");
+        }
         left.appendChild(checkbox);
         left.appendChild(text);
         const actions = document.createElement('div');
@@ -74,8 +80,11 @@ function deleteTask(id) {
 }
 addTaskBtn.addEventListener('click', () => {
     const title = taskTitleInput.value.trim();
-    if (!title)
+    const dueDate = dueDateInput.value;
+    if (!title || !dueDate) {
+        alert("Please enter both task title and due date.");
         return;
+    }
     const newTask = {
         id: crypto.randomUUID(),
         title,
