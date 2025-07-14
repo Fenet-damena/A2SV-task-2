@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Todo</title>
+  <link rel="stylesheet" href="todo.css" />
+</head>
+<body>
+  <header>
+    <h1>✅ Simple Todo</h1>
+    <p>Add, edit, and manage your tasks with due dates</p>
+  </header>
+
+  <main class="container">
+    <section class="task-list">
+      <div class="tabs">
+        <button id="allBtn" class="active">All (<span id="allCount">0</span>)</button>
+        <button id="pendingBtn">Pending (<span id="pendingCount">0</span>)</button>
+        <button id="completedBtn">Completed (<span id="completedCount">0</span>)</button>
+      </div>
+      <ul id="tasks"></ul>
+    </section>
+
+    <section class="add-task">
+      <h2>Add New Task</h2>
+      <input type="text" id="taskTitle" placeholder="Enter task title..." />
+      <input type="date" id="dueDate" />
+      <button id="addTaskBtn">+ Add Task</button>
+    </section>
+  </main>
+
+  <script type="module" src="todo.ts"></script>
+</body>
+</html>
