@@ -67,7 +67,7 @@ function renderTasks() {
         const actions = document.createElement('div');
         actions.className = 'task-actions';
         const editBtn = document.createElement('button');
-        editBtn.textContent = '✎';
+        editBtn.textContent = '✏️';
         editBtn.onclick = () => {
             taskTitleInput.value = task.title;
             dueDateInput.value = task.dueDate || '';
